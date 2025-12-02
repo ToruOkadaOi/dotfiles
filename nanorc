@@ -1,0 +1,52 @@
+# nano configuration - Mac
+
+# ----- editing and whitespace -----
+
+set softwrap          # wrap long lines visually instead of horizontal scrolling
+set atblanks          # wrap at whitespace boundaries, not in the middle of words
+set autoindent        # new lines keep indentation of previous line
+set trimblanks        # remove trailing spaces when saving
+set tabsize 4         # show tabs as 4 columns wide
+set tabstospaces      # pressing Tab inserts spaces instead of a literal tab
+set cutfromcursor     # cutting deletes from cursor to end of line (not full line)
+set zap               # stronger delete/backspace behavior (delete faster)
+set smarthome         # first Home = first non-space, second = absolute start of line
+set nonewlines        # don’t force an extra newline at end of file
+
+# ----- ui -----
+
+set minibar           # compact status bar (saves vertical space)
+set indicator         # scrollbar-like indicator showing position in file
+set linenumbers       # show line numbers
+set constantshow      # continuously show cursor position (line/column)
+set stateflags        # show status flags (modified, etc.)
+set positionlog       # remember cursor position per file
+#set mouse             # enable mouse selection and cursor movement
+set backup            # write backups as filename~
+set historylog        # remember search/replace history
+set multibuffer       # open multiple files at once (buffers)
+
+# ----- colors -----
+
+set titlecolor bold,white,blue     # top title bar
+set statuscolor white,blue         # status bar
+set errorcolor bold,white,red      # error messages
+set selectedcolor black,cyan       # selected text region
+set scrollercolor white,magenta    # scroll indicator bar
+set numbercolor white              # line number color
+set keycolor cyan                  # key shortcut color in help menus
+set functioncolor magenta          # labels for functions in help menus
+#set minibarcolor bold,white,blue   # color of minibar (bottom bar)
+set promptcolor bold,white,blue    # prompts (yes/no, filenames, etc.)
+
+# ----- key bindings -----
+
+#bind M-/ comment main                      # toggle comment/uncomment
+#bind M-c copy main                         # copy in nano’s internal clipboard
+#bind M-x cut main                          # cut inside nano’s clipboard
+#bind M-v paste main                        # paste inside nano’s clipboard
+bind ^S savefile main                      # Ctrl+S to save quickly
+
+# ----- syntax highlighting -----
+
+#include "/opt/homebrew/share/nano/*.nanorc" # included now with ohmyzsh
