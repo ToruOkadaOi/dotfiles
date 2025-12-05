@@ -2,6 +2,10 @@ local wezterm = require 'wezterm'
 
 local config = wezterm.config_builder()
 
+-- left option key behaviour
+config.send_composed_key_when_left_alt_is_pressed = true
+config.send_composed_key_when_right_alt_is_pressed = false
+
 config.initial_cols = 120
 config.initial_rows = 28
 
