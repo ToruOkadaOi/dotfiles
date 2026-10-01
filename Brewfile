@@ -16,6 +16,8 @@ brew "coreutils"
 brew "tesseract"
 # Command-line fuzzy finder written in Go
 brew "fzf"
+# Syntax-highlighting pager for git, diff, and grep output
+brew "git-delta"
 # File format designed to store large amounts of data
 brew "hdf5"
 # C library for high-throughput sequencing data formats

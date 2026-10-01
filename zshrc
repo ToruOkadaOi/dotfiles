@@ -43,7 +43,7 @@ zmodload zsh/complist
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$HOME/anaconda3/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:$(go env GOPATH)/bin"
+export PATH="$PATH:${GOPATH:-$HOME/go}/bin"
 export PATH="$HOME/.local/bin:$PATH"
 
 # language paths
@@ -101,3 +101,15 @@ JOB_INDICATOR='%(1j.%F{magenta}[%j jobs]%f .)'
 EXIT_INDICATOR='%(?..%F{red}✗ %?)'
 
 PROMPT="$PROMPT $JOB_INDICATOR $EXIT_INDICATOR "
+# opencode
+export PATH="$HOME/.opencode/bin:$PATH"
+
+# kimi-code
+export PATH="$HOME/.kimi-code/bin:$PATH"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+
+# Added by Antigravity IDE
+export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
+

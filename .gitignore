@@ -1,2 +1,3 @@
 *.local
 zshrc.local
+.DS_Store

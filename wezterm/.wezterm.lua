@@ -49,8 +49,27 @@ config.keys = {
     },
   },
 
--- prompt inline for renaming tabs,panes & windows # TODO
-  
+-- cmd + t = new named tab
+  {
+    key = 't',
+    mods = 'CMD',
+    action = wezterm.action.SpawnTab 'CurrentPaneDomain',
+  },
+
+-- cmd + shift + r = rename current tab
+  {
+    key = 'r',
+    mods = 'CMD|SHIFT',
+    action = wezterm.action.PromptInputLine {
+      description = 'Rename current tab:',
+      action = wezterm.action_callback(function(window, pane, line)
+        if line then
+          window:active_tab():set_title(line)
+        end
+      end),
+    },
+  },
+
 }
 
 config.initial_cols = 120
