@@ -112,7 +112,13 @@ fi
 [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # Resolve the tracked config through ~/.zshrc, which is symlinked to this repo.
-export STARSHIP_CONFIG="${${(%):-%x}:A:h}/starship.toml"
+export DOTFILES_DIR="${${(%):-%x}:A:h}"
+export STARSHIP_CONFIG="$DOTFILES_DIR/starship.toml"
+
+dotfiles-sync() {
+    git -C "$DOTFILES_DIR" pull --ff-only &&
+        bash "$DOTFILES_DIR/setup.sh" && exec zsh
+}
 if (( $+commands[starship] )); then
     eval "$(starship init zsh)"
 else
