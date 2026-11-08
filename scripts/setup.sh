@@ -60,22 +60,23 @@ if [[ ${1:-} == --install ]]; then
             curl -fsSL https://starship.rs/install.sh -o "$tmp/starship-install.sh"
             sh "$tmp/starship-install.sh" --bin-dir "$HOME/.local/bin" --yes
         fi
-        # Official release binaries avoid sudo and extra shared-library packages.
+        # Pins and trusted digests are tracked together for reviewable updates.
+        source "$repo/scripts/tool-versions.sh"
         case $(uname -m) in
-            x86_64) delta_target=x86_64-unknown-linux-musl; lazygit_arch=x86_64 ;;
-            aarch64|arm64) delta_target=aarch64-unknown-linux-gnu; lazygit_arch=arm64 ;;
+            x86_64) delta_target=x86_64-unknown-linux-musl; lazygit_arch=x86_64; delta_sha256=$delta_sha256_x86_64; lazygit_sha256=$lazygit_sha256_x86_64 ;;
+            aarch64|arm64) delta_target=aarch64-unknown-linux-gnu; lazygit_arch=arm64; delta_sha256=$delta_sha256_arm64; lazygit_sha256=$lazygit_sha256_arm64 ;;
             *) echo 'Install delta and lazygit for this architecture manually.' >&2; exit 1 ;;
         esac
-        if ! command -v delta >/dev/null; then
-            delta_version=0.20.1
+        if ! command -v delta >/dev/null || { [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]] && [[ $(command -v delta) == "$HOME/.local/bin/delta" ]]; }; then
             archive="delta-$delta_version-$delta_target"
             curl -fsSL "https://github.com/dandavison/delta/releases/download/$delta_version/$archive.tar.gz" -o "$tmp/delta.tar.gz"
+            printf '%s  %s\n' "$delta_sha256" "$tmp/delta.tar.gz" | sha256sum -c -
             tar -xzf "$tmp/delta.tar.gz" -C "$tmp"
             install -m 755 "$tmp/$archive/delta" "$HOME/.local/bin/delta"
         fi
-        if ! command -v lazygit >/dev/null; then
-            lazygit_version=0.66.3
+        if ! command -v lazygit >/dev/null || { [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]] && [[ $(command -v lazygit) == "$HOME/.local/bin/lazygit" ]]; }; then
             curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v$lazygit_version/lazygit_${lazygit_version}_linux_${lazygit_arch}.tar.gz" -o "$tmp/lazygit.tar.gz"
+            printf '%s  %s\n' "$lazygit_sha256" "$tmp/lazygit.tar.gz" | sha256sum -c -
             tar -xzf "$tmp/lazygit.tar.gz" -C "$tmp" lazygit
             install -m 755 "$tmp/lazygit" "$HOME/.local/bin/lazygit"
         fi
