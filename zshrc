@@ -3,14 +3,6 @@ DISABLE_AUTO_UPDATE="true"
 DISABLE_MAGIC_FUNCTIONS="true"
 DISABLE_COMPFIX="true"
 
-# cache completions aggressively
-autoload -Uz compinit
-if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
-    compinit
-else
-    compinit -C
-fi
-
 # Oh My Zsh path
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -18,11 +10,18 @@ ZSH_THEME=""
 
 plugins=(
   git
-  zsh-autosuggestions
-  zsh-syntax-highlighting
 )
+for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+    [[ -r ${ZSH_CUSTOM:-$ZSH/custom}/plugins/$plugin/$plugin.plugin.zsh ]] && plugins+=($plugin)
+done
+unset plugin
 
-source $ZSH/oh-my-zsh.sh
+if [[ -r $ZSH/oh-my-zsh.sh ]]; then
+    source "$ZSH/oh-my-zsh.sh"
+else
+    autoload -Uz compinit
+    compinit
+fi
 
 # autosuggest settings
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=245"
@@ -33,25 +32,28 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 setopt autocd
 
 # prevent accidental terminal freeze
-stty stop undef
+[[ -t 0 ]] && stty stop undef
 
 # completion interface - interactive menu
 zstyle ':completion:*' menu select
 zmodload zsh/complist
 
 # paths
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="$HOME/anaconda3/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:${GOPATH:-$HOME/go}/bin"
-export PATH="$HOME/.local/bin:$PATH"
+typeset -U path PATH
+for bin_dir in /opt/homebrew/bin /home/linuxbrew/.linuxbrew/bin \
+    "$HOME/anaconda3/bin" "$HOME/bin" "$HOME/.local/bin" \
+    "${GOPATH:-$HOME/go}/bin" "$HOME/.opencode/bin" "$HOME/.kimi-code/bin" \
+    "$HOME/.lmstudio/bin" "$HOME/.antigravity-ide/antigravity-ide/bin"; do
+    [[ -d $bin_dir ]] && path=($bin_dir $path)
+done
+unset bin_dir
 
 # language paths
-export LUA_CPATH="/opt/homebrew/lib/lua/5.4/?.so;;"
+if [[ $OSTYPE == darwin* && -d /opt/homebrew/lib/lua/5.4 ]]; then
+    export LUA_CPATH="/opt/homebrew/lib/lua/5.4/?.so;;"
+fi
 
 # aliases
-
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 alias nz='nano ~/.zshrc'
 alias sz='source ~/.zshrc'
@@ -70,7 +72,7 @@ alias docker_clean_ps='docker rm $(docker ps --filter=status=exited --filter=sta
 alias docker_clean_images='docker rmi $(docker images -a --filter=dangling=true -q)'
 
 # thefuck
-eval "$(thefuck --alias)"
+(( $+commands[thefuck] )) && eval "$(thefuck --alias)"
 
 # quiet
 quiet() { "$@" >/dev/null 2>&1; }
@@ -82,8 +84,6 @@ SAVEHIST=50000
 HISTFILE=~/.zsh_history
 
 # append whenever a command finishes
-setopt INC_APPEND_HISTORY
-
 # share history across all sessions
 setopt SHARE_HISTORY
 
@@ -92,20 +92,29 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 
 # fzf key b
-source <(fzf --zsh)
+if (( $+commands[fzf] )); then
+    # Older distro versions do not support `fzf --zsh`.
+    if fzf --zsh >/dev/null 2>&1; then
+        source <(fzf --zsh)
+    else
+        for fzf_bindings in /usr/share/doc/fzf/examples/key-bindings.zsh \
+            "$HOME/.local/share/dotfiles-deps/usr/share/doc/fzf/examples/key-bindings.zsh"; do
+            if [[ -r $fzf_bindings ]]; then
+                source "$fzf_bindings"
+                break
+            fi
+        done
+        unset fzf_bindings
+    fi
+fi
 
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"
-
-# kimi-code
-export PATH="$HOME/.kimi-code/bin:$PATH"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:$HOME/.lmstudio/bin"
-
-# Added by Antigravity IDE
-export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
+# Machine-specific paths, aliases and overrides stay outside Git.
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # Resolve the tracked config through ~/.zshrc, which is symlinked to this repo.
 export STARSHIP_CONFIG="${${(%):-%x}:A:h}/starship.toml"
-eval "$(starship init zsh)"
+if (( $+commands[starship] )); then
+    eval "$(starship init zsh)"
+else
+    PROMPT='%m %~ %D{%Y-%m-%d} %* %# '
+fi
