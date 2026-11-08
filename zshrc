@@ -14,7 +14,7 @@ fi
 # Oh My Zsh path
 export ZSH="$HOME/.oh-my-zsh"
 
-ZSH_THEME="fino-time"
+ZSH_THEME=""
 
 plugins=(
   git
@@ -94,13 +94,6 @@ setopt HIST_FIND_NO_DUPS
 # fzf key b
 source <(fzf --zsh)
 
-# Background jobs indicator: [N jobs]
-JOB_INDICATOR='%(1j.%F{magenta}[%j jobs]%f .)'
-
-# Exit code indicator: shows ✗ + code only if failed
-EXIT_INDICATOR='%(?..%F{red}✗ %?)'
-
-PROMPT="$PROMPT $JOB_INDICATOR $EXIT_INDICATOR "
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 
@@ -113,3 +106,6 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 # Added by Antigravity IDE
 export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
 
+# Resolve the tracked config through ~/.zshrc, which is symlinked to this repo.
+export STARSHIP_CONFIG="${${(%):-%x}:A:h}/starship.toml"
+eval "$(starship init zsh)"

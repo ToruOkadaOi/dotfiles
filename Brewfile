@@ -62,6 +62,8 @@ brew "ripgrep"
 brew "sratoolkit"
 # Organize software neatly under a single directory tree (e.g. /usr/local)
 brew "stow"
+# Cross-shell prompt
+brew "starship"
 # Programmatically correct mistyped console commands
 brew "thefuck"
 # Terminal multiplexer
