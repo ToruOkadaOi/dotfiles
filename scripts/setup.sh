@@ -30,6 +30,17 @@ if [[ ${1:-} == --install ]]; then
             fi
         done
         if ((${#missing[@]})); then brew install "${missing[@]}"; fi
+        if [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]]; then
+            brew update --quiet
+            if ! outdated=$(brew outdated --quiet git-delta lazygit); then
+                [[ -n $outdated ]] || { echo 'Could not check Homebrew updates.' >&2; exit 1; }
+            fi
+            if [[ -n $outdated ]]; then
+                while IFS= read -r formula; do brew upgrade "$formula"; done <<< "$outdated"
+            else
+                echo 'delta and lazygit are up to date.'
+            fi
+        fi
     elif command -v apt-get >/dev/null; then
         # Extract official distro packages into the user account; no sudo needed.
         deps="$HOME/.local/share/dotfiles-deps"
@@ -67,14 +78,37 @@ if [[ ${1:-} == --install ]]; then
             aarch64|arm64) delta_target=aarch64-unknown-linux-gnu; lazygit_arch=arm64; delta_sha256=$delta_sha256_arm64; lazygit_sha256=$lazygit_sha256_arm64 ;;
             *) echo 'Install delta and lazygit for this architecture manually.' >&2; exit 1 ;;
         esac
-        if ! command -v delta >/dev/null || { [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]] && [[ $(command -v delta) == "$HOME/.local/bin/delta" ]]; }; then
+        upgrade_delta=0; upgrade_lazygit=0
+        if [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]]; then
+            command -v python3 >/dev/null || { echo 'python3 is required to check releases.' >&2; exit 1; }
+            for tool in delta lazygit; do
+                if [[ $(command -v "$tool" || true) != "$HOME/.local/bin/$tool" ]]; then
+                    echo "$tool is managed outside dotfiles; update it with its package manager."
+                    continue
+                fi
+                if [[ $tool == delta ]]; then release_repo=dandavison/delta; target=$delta_target; else release_repo=jesseduffield/lazygit; target=$lazygit_arch; fi
+                curl -fsSL "https://api.github.com/repos/$release_repo/releases/latest" -o "$tmp/$tool-release.json"
+                release=$(python3 "$repo/scripts/release-info.py" "$tmp/$tool-release.json" "$tool" "$target")
+                read -r latest_version latest_sha256 <<< "$release"
+                if [[ $tool == delta ]]; then
+                    if [[ $(delta --version) != "delta $latest_version" ]]; then upgrade_delta=1; fi
+                    delta_version=$latest_version; delta_sha256=$latest_sha256
+                    [[ $upgrade_delta == 1 ]] || echo "delta $latest_version is up to date."
+                else
+                    if [[ $(lazygit --version) != *"version=$latest_version,"* ]]; then upgrade_lazygit=1; fi
+                    lazygit_version=$latest_version; lazygit_sha256=$latest_sha256
+                    [[ $upgrade_lazygit == 1 ]] || echo "lazygit $latest_version is up to date."
+                fi
+            done
+        fi
+        if ! command -v delta >/dev/null || [[ $upgrade_delta == 1 ]]; then
             archive="delta-$delta_version-$delta_target"
             curl -fsSL "https://github.com/dandavison/delta/releases/download/$delta_version/$archive.tar.gz" -o "$tmp/delta.tar.gz"
             printf '%s  %s\n' "$delta_sha256" "$tmp/delta.tar.gz" | sha256sum -c -
             tar -xzf "$tmp/delta.tar.gz" -C "$tmp"
             install -m 755 "$tmp/$archive/delta" "$HOME/.local/bin/delta"
         fi
-        if ! command -v lazygit >/dev/null || { [[ ${DOTFILES_UPGRADE_TOOLS:-0} == 1 ]] && [[ $(command -v lazygit) == "$HOME/.local/bin/lazygit" ]]; }; then
+        if ! command -v lazygit >/dev/null || [[ $upgrade_lazygit == 1 ]]; then
             curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v$lazygit_version/lazygit_${lazygit_version}_linux_${lazygit_arch}.tar.gz" -o "$tmp/lazygit.tar.gz"
             printf '%s  %s\n' "$lazygit_sha256" "$tmp/lazygit.tar.gz" | sha256sum -c -
             tar -xzf "$tmp/lazygit.tar.gz" -C "$tmp" lazygit

@@ -135,7 +135,7 @@ export STARSHIP_CONFIG="$DOTFILES_DIR/starship.toml"
 
 dotfiles-sync() {
     git -C "$DOTFILES_DIR" pull --ff-only &&
-        bash "$DOTFILES_DIR/scripts/setup.sh" --install && exec zsh
+        DOTFILES_UPGRADE_TOOLS=1 bash "$DOTFILES_DIR/scripts/setup.sh" --install && exec zsh
 }
 if (( $+commands[starship] )); then
     eval "$(starship init zsh)"
