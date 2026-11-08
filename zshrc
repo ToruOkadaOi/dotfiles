@@ -64,20 +64,22 @@ unalias fd fe 2>/dev/null
 # NUL-delimited pickers preserve spaces and newlines; Escape does nothing.
 cdf() {
     local selected
-    IFS= read -r -d '' selected < <(
+    selected=$(
         find . -type d -name .git -prune -o -type d -print0 2>/dev/null |
-            fzf --read0 --print0 --prompt='Directory > '
+            fzf --read0 --print0 --prompt='Directory > ' --query="$*"
     ) || return 0
+    selected=${selected%$'\0'}
     [[ -n $selected ]] && builtin cd -- "$selected"
 }
 
 fe() {
     local selected
     local -a editor
-    IFS= read -r -d '' selected < <(
+    selected=$(
         find . -type d -name .git -prune -o -type f -print0 2>/dev/null |
-            fzf --read0 --print0 --prompt='File > '
+            fzf --read0 --print0 --prompt='File > ' --query="$*"
     ) || return 0
+    selected=${selected%$'\0'}
     editor=("${(@Q)${(z)${EDITOR:-nano}}}")
     "${editor[@]}" -- "$selected"
 }

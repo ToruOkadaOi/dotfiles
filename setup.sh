@@ -103,6 +103,11 @@ link_config "$repo/nanorc" "$HOME/.nanorc"
 link_config "$repo/lazygit-config.yml" "$HOME/.config/lazygit/config.yml"
 link_config "$repo/wezterm/.wezterm.lua" "$HOME/.wezterm.lua"
 
+# Make the first interactive directory search useful on a fresh installation.
+if command -v zoxide >/dev/null && ! zoxide query --list >/dev/null 2>&1; then
+    zoxide add "$repo" "$HOME"
+fi
+
 if [[ ${2:-${1:-}} == --ssh-zsh ]]; then
     command -v zsh >/dev/null || { echo 'Zsh is required.' >&2; exit 1; }
     # Preserve the account shell and non-interactive SSH/scp behavior.
