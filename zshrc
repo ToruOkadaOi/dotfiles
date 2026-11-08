@@ -87,10 +87,6 @@ fe() {
 # fzf & run cmd from history
 alias fh='eval "$(\fc -nl | fzf)"'
 
-# Docker utilities
-alias docker_clean_ps='docker rm $(docker ps --filter=status=exited --filter=status=created -q)'
-alias docker_clean_images='docker rmi $(docker images -a --filter=dangling=true -q)'
-
 # thefuck
 (( $+commands[thefuck] )) && eval "$(thefuck --alias)"
 
