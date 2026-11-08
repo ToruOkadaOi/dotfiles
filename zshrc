@@ -48,6 +48,9 @@ for bin_dir in /opt/homebrew/bin /home/linuxbrew/.linuxbrew/bin \
 done
 unset bin_dir
 
+# mise manages the shared CLI tools globally, including outside this repository.
+[[ -d $HOME/.local/share/mise/shims ]] && path=("$HOME/.local/share/mise/shims" $path)
+
 # language paths
 if [[ $OSTYPE == darwin* && -d /opt/homebrew/lib/lua/5.4 ]]; then
     export LUA_CPATH="/opt/homebrew/lib/lua/5.4/?.so;;"
@@ -135,7 +138,7 @@ export STARSHIP_CONFIG="$DOTFILES_DIR/starship.toml"
 
 dotfiles-sync() {
     git -C "$DOTFILES_DIR" pull --ff-only &&
-        bash "$DOTFILES_DIR/scripts/setup.sh" --install && exec zsh
+        bash "$DOTFILES_DIR/scripts/setup.sh" --upgrade && exec zsh
 }
 if (( $+commands[starship] )); then
     eval "$(starship init zsh)"

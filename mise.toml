@@ -1,0 +1,6 @@
+[tools]
+delta = "latest"
+lazygit = "latest"
+starship = "latest"
+fzf = "latest"
+zoxide = "latest"

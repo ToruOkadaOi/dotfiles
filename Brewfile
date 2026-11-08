@@ -14,12 +14,6 @@ brew "bwa"
 brew "coreutils"
 # OCR (Optical Character Recognition) engine
 brew "tesseract"
-# Command-line fuzzy finder written in Go
-brew "fzf"
-# Syntax-highlighting pager for git, diff, and grep output
-brew "git-delta"
-# Terminal Git interface
-brew "lazygit"
 # File format designed to store large amounts of data
 brew "hdf5"
 # C library for high-throughput sequencing data formats
@@ -64,10 +58,6 @@ brew "ripgrep"
 brew "sratoolkit"
 # Organize software neatly under a single directory tree (e.g. /usr/local)
 brew "stow"
-# Cross-shell prompt
-brew "starship"
-# Jump to frequently used directories
-brew "zoxide"
 # Programmatically correct mistyped console commands
 brew "thefuck"
 # Terminal multiplexer
