@@ -1,8 +1,0 @@
-# Linux release pins. When updating, replace both architecture hashes with
-# SHA-256 digests published by the corresponding project's GitHub release.
-delta_version=0.20.1
-delta_sha256_x86_64=69dcb4043f55c29118f408c6efd30115e0a4e0a6709253343b8c8fa814ab4a31
-delta_sha256_arm64=da7f4338f593572ff426ae153e0870e2fdc72729416eff551b40cdeb67940db8
-lazygit_version=0.66.3
-lazygit_sha256_x86_64=0a23f429a95f0d09db298b3c291536d818de066aa5a85c255806f0490ff6656b
-lazygit_sha256_arm64=ac0b48237f3d0283813e7154ec063237e519532feb0470c0881a1793ee78fd42
