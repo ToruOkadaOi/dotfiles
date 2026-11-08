@@ -30,9 +30,9 @@ gui:
   showFileTree: true
   showRandomTip: false
 git:
-  pagers:
+  diffRenderers:
     - colorArg: always
-      pager: delta --dark --paging=never
+      command: delta --dark --paging=never
   autoFetch: true
   autoRefresh: true
   commit:

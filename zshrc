@@ -58,11 +58,29 @@ fi
 alias nz='nano ~/.zshrc'
 alias sz='source ~/.zshrc'
 
-# fzf & cd
-alias fd='cd $(find . -type d 2>/dev/null | fzf)' # super useful
+# Remove the old aliases when reloading an existing shell.
+unalias fd fe 2>/dev/null
 
-# fzf & open with editor
-alias fe='${EDITOR:-nano} $(fzf)'
+# NUL-delimited pickers preserve spaces and newlines; Escape does nothing.
+cdf() {
+    local selected
+    IFS= read -r -d '' selected < <(
+        find . -type d -name .git -prune -o -type d -print0 2>/dev/null |
+            fzf --read0 --print0 --prompt='Directory > '
+    ) || return 0
+    [[ -n $selected ]] && builtin cd -- "$selected"
+}
+
+fe() {
+    local selected
+    local -a editor
+    IFS= read -r -d '' selected < <(
+        find . -type d -name .git -prune -o -type f -print0 2>/dev/null |
+            fzf --read0 --print0 --prompt='File > '
+    ) || return 0
+    editor=("${(@Q)${(z)${EDITOR:-nano}}}")
+    "${editor[@]}" -- "$selected"
+}
 
 # fzf & run cmd from history
 alias fh='eval "$(\fc -nl | fzf)"'
@@ -111,13 +129,15 @@ fi
 # Machine-specific paths, aliases and overrides stay outside Git.
 [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+
 # Resolve the tracked config through ~/.zshrc, which is symlinked to this repo.
 export DOTFILES_DIR="${${(%):-%x}:A:h}"
 export STARSHIP_CONFIG="$DOTFILES_DIR/starship.toml"
 
 dotfiles-sync() {
     git -C "$DOTFILES_DIR" pull --ff-only &&
-        bash "$DOTFILES_DIR/setup.sh" && exec zsh
+        bash "$DOTFILES_DIR/setup.sh" --install && exec zsh
 }
 if (( $+commands[starship] )); then
     eval "$(starship init zsh)"
