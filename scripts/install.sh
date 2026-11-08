@@ -8,7 +8,7 @@ done
 repo=${DOTFILES_DIR:-$HOME/dotfiles}
 if [[ -z ${DOTFILES_DIR:-} && -L $HOME/.zshrc ]]; then
     target=$(readlink "$HOME/.zshrc")
-    if [[ $target == /* && -f ${target%/*}/setup.sh ]]; then
+    if [[ $target == /* && -f ${target%/*}/scripts/setup.sh ]]; then
         repo=${target%/*}
     fi
 fi
@@ -26,8 +26,8 @@ fi
 
 login_shell=${SHELL:-}
 if [[ ${login_shell##*/} == bash ]]; then
-    bash "$repo/setup.sh" --install --ssh-zsh
+    bash "$repo/scripts/setup.sh" --install --ssh-zsh
 else
-    bash "$repo/setup.sh" --install
+    bash "$repo/scripts/setup.sh" --install
 fi
 printf '\nReady. Open a new terminal or reconnect. Future updates: dotfiles-sync\n'
